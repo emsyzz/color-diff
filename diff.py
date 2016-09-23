@@ -64,6 +64,17 @@ def addNearbyToGroup(grp, rgb, xy, xyD, wh):
     if inRange(x, xD, w) and inRange(y, yD, h):
         grp.append(getColorDiffOf(rgb1, rgb2, (x+xD, y+yD)))
     
+def getCirclePoints(radius):
+    points = []
+    if radius >= 1:
+        points = points + [(-1, 0), (0, -1), (1, 0), (0, 1)]
+    if radius >= 2:
+        points = points + [(-2, 0), (0, -2), (2, 0), (0, 2), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+    if radius >= 3:
+        points = points + [(-3, 0), (0, -3), (3, 0), (0, 3), (2, 1), (-2, -1), (2, -1), (-2, 1), (1, 2), (-1, -2), (1, -2), (-1, 2), (2, 2), (-2, -2), (2, -2), (-2, 2)]
+    
+    return points
+    
 imgF = im.new('RGBA', (w, h))
 px = imgF.load()
 
@@ -76,15 +87,8 @@ for y in range(0, h):
         colorDiff = getColorDiff(im1Px, im2Px)
         if nearby > 0:
             grp = [colorDiff]
-            if nearby >= 1:
-                for xD, yD in [(-1, 0), (0, -1), (1, 0), (0, 1)]:
-                    addNearbyToGroup(grp, (rgb_im1, rgb_im2), (x, y), (xD, yD), (w-1, h-1))
-            if nearby >= 2:
-                for xD, yD in [(-2, 0), (0, -2), (2, 0), (0, 2), (1, 1), (-1, -1), (1, -1), (-1, 1)]:
-                    addNearbyToGroup(grp, (rgb_im1, rgb_im2), (x, y), (xD, yD), (w-1, h-1))
-            if nearby >= 3:
-                for xD, yD in [(-3, 0), (0, -3), (3, 0), (0, 3), (2, 1), (-2, -1), (2, -1), (-2, 1), (1, 2), (-1, -2), (1, -2), (-1, 2), (2, 2), (-2, -2), (2, -2), (-2, 2)]:
-                    addNearbyToGroup(grp, (rgb_im1, rgb_im2), (x, y), (xD, yD), (w-1, h-1))
+            for xD, yD in getCirclePoints(nearby):
+                addNearbyToGroup(grp, (rgb_im1, rgb_im2), (x, y), (xD, yD), (w-1, h-1))
                 
             colorDiff = sum(grp) / float(len(grp))
             
