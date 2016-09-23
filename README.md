@@ -6,5 +6,5 @@ Requeriments:
 
 Usage:
 
-      python diff.py img1.png img2.png [(float) difference]
+      python diff.py image1 [[[image2] [(float) difference]] [(int) radius]]
 
