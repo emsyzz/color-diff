@@ -29,8 +29,6 @@ else:
 
 rgb_im2 = img2.convert('RGB')
 
-print w, h
-
 proc = 1
 if len(sys.argv) > 3:
     proc = float(sys.argv[3])
@@ -91,8 +89,7 @@ def getCirclePoints(radius):
 imgF = im.new('RGBA', (w, h))
 px = imgF.load()
 
-i = 0
-ix = 0
+dI = 0
 for y in range(0, h):
     for x in range(0, w):
         im1Px = rgb_im1.getpixel((x, y))
@@ -105,11 +102,14 @@ for y in range(0, h):
                 
             colorDiff = sum(grp) / float(len(grp))
             
-        ix = ix + 1
         if colorDiff <= proc:
             px[x,y] = im1Px
+            dI = dI + 1
 
 
 imgF.save('result.png', 'PNG', transparent=0)
 
-print "Done!\nSee result.png"
+colorProc = ((w * h - dI) / ((w * h) * 0.01))
+
+print "Image is %.2f%% colorful, allowing %.2f%% difference and using %dpx brush" % (colorProc, proc, nearby)
+print "See result.png"
