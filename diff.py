@@ -65,20 +65,20 @@ def addNearbyToGroup(grp, rgb, xy, xyD, wh):
         grp.append(getColorDiffOf(rgb1, rgb2, (x+xD, y+yD)))
     
 def getCirclePoints(radius):
-    points = []
-    for i in range(1, radius):
+    points = set([])
+    for i in range(1, radius+1):
         x = i
         y = 0
         d = 1 - x
         while x >= y:
-            points.append(( x + 0,  y + 0))
-            points.append(( y + 0,  x + 0))
-            points.append((-x + 0,  y + 0))
-            points.append((-y + 0,  x + 0))
-            points.append((-x + 0, -y + 0))
-            points.append((-y + 0, -x + 0))
-            points.append(( x + 0, -y + 0))
-            points.append(( y + 0, -x + 0))
+            points.add(( x + 0,  y + 0))
+            points.add(( y + 0,  x + 0))
+            points.add((-x + 0,  y + 0))
+            points.add((-y + 0,  x + 0))
+            points.add((-x + 0, -y + 0))
+            points.add((-y + 0, -x + 0))
+            points.add(( x + 0, -y + 0))
+            points.add(( y + 0, -x + 0))
             y = y + 1
             if d <= 0:
                 d = d + (2 * y + 1)
@@ -86,7 +86,7 @@ def getCirclePoints(radius):
                 x = x - 1
                 d = d + (2 * (y - x) + 1)
     
-    return points
+    return list(points)
     
 imgF = im.new('RGBA', (w, h))
 px = imgF.load()
