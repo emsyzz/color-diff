@@ -66,12 +66,25 @@ def addNearbyToGroup(grp, rgb, xy, xyD, wh):
     
 def getCirclePoints(radius):
     points = []
-    if radius >= 1:
-        points = points + [(-1, 0), (0, -1), (1, 0), (0, 1)]
-    if radius >= 2:
-        points = points + [(-2, 0), (0, -2), (2, 0), (0, 2), (1, 1), (-1, -1), (1, -1), (-1, 1)]
-    if radius >= 3:
-        points = points + [(-3, 0), (0, -3), (3, 0), (0, 3), (2, 1), (-2, -1), (2, -1), (-2, 1), (1, 2), (-1, -2), (1, -2), (-1, 2), (2, 2), (-2, -2), (2, -2), (-2, 2)]
+    for i in range(1, radius):
+        x = i
+        y = 0
+        d = 1 - x
+        while x >= y:
+            points.append(( x + 0,  y + 0))
+            points.append(( y + 0,  x + 0))
+            points.append((-x + 0,  y + 0))
+            points.append((-y + 0,  x + 0))
+            points.append((-x + 0, -y + 0))
+            points.append((-y + 0, -x + 0))
+            points.append(( x + 0, -y + 0))
+            points.append(( y + 0, -x + 0))
+            y = y + 1
+            if d <= 0:
+                d = d + (2 * y + 1)
+            else:
+                x = x - 1
+                d = d + (2 * (y - x) + 1)
     
     return points
     
