@@ -9,9 +9,12 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('input')
 parser.add_argument('-O', '--output', default='result.png')
+parser.add_argument('-f', '--filter', default='greyscale')
 parser.add_argument('-p', '--percent-diff', default=1, type=float)
 parser.add_argument('-r', '--radius', default=0, type=int)
-parser.add_argument('-v', '--verbose', default=False, type=bool)
+parser.add_argument('-m', '--mix-colors', action='store_true')
+parser.add_argument('-i', '--invert', action='store_true')
+parser.add_argument('-v', '--verbose', action='store_true')
 args = parser.parse_args()
 
 startTime = time()
@@ -21,17 +24,42 @@ rgb_im1 = img1.convert('RGB')
 
 w, h = img1.size[:2]
 
-# make greyscale image of img1
-img2 = im.new('RGB', (w, h))
-im2P = img2.load()
-for y in range(0, h):
-    for x in range(0, w):
-        r, g, b = rgb_im1.getpixel((x, y))
-        g = int(math.ceil((0.2126 * r) + (0.7152 * g) + (0.0722 * b)))
-        im2P[x,y] = (g, g, g)
-
-rgb_im2 = img2.convert('RGB')
+def getFilteredImage(input, filter='greyscale'):
+    inW, inH = input.size[:2]
+    img2 = im.new('RGB', (inW, inH))
+    im2P = img2.load()
     
+    for y in range(0, inH):
+        for x in range(0, inW):
+            r, g, b = rgb_im1.getpixel((x, y))
+            g = int(math.ceil((0.2126 * r) + (0.7152 * g) + (0.0722 * b)))
+            tuple = (r, g, b)
+            
+            if filter == 'greyscale':
+                tuple = filterGreyscale(r, g, b)
+            elif filter == 'invert':
+                tuple = filterInvert(r, g, b)
+            else:
+                print "Filter %s is not present" % filter
+                exit()
+            
+            im2P[x,y] = tuple
+    
+    return img2.convert('RGB')
+
+
+def filterGreyscale(r, g, b):
+    g = int(math.ceil((0.2126 * r) + (0.7152 * g) + (0.0722 * b)))
+    return (g, g, g)
+    
+    
+def filterInvert(r, g, b):
+    r = max([r, 255]) - min([r, 255])
+    g = max([g, 255]) - min([g, 255])
+    b = max([b, 255]) - min([b, 255])
+    
+    return (r, g, b)
+
 def getColorDiff(im1, im2):
     return getRGBColorDiff(im1, im2)
     #return getHSLColorDiff(im1, im2)
@@ -51,16 +79,16 @@ def getHSLColorDiff(im1, im2):
 def getRGBColorDiff(im1, im2):
     r1, g1, b1 = im1
     r2, g2, b2 = im2
-    rDiff = max([r1+1, r2+1]) - min([r1+1, r2+1])
-    gDiff = max([g1+1, g2+1]) - min([g1+1, g2+1])
-    bDiff = max([b1+1, b2+1]) - min([b1+1, b2+1])
-    colVol = rDiff * gDiff * bDiff
+    rDiff = max([r1, r2]) - min([r1, r2])
+    gDiff = max([g1, g2]) - min([g1, g2])
+    bDiff = max([b1, b2]) - min([b1, b2])
+    colVol = (rDiff+1) * (gDiff+1) * (bDiff+1)
     if args.verbose:
-        print 255+1*255+1*255+1, colVol, 'rgb:', rDiff, gDiff, bDiff
+        print 255+1*255+1*255+1, colVol, "rgb:", rDiff, gDiff, bDiff
     totalVol = (255+1 * 255+1 * 255+1) / 1.0
     colorDiff = (100 - (((totalVol - colVol) / ((totalVol + colVol) / 2)) * 50)) / 2
     if args.verbose:
-        print colorDiff
+        print "%.f2%%" % colorDiff
     return colorDiff
 
     
@@ -113,6 +141,9 @@ def setAlpha(color, alpha):
     r,g,b = color
     return (r, g, b, alpha)
     
+    
+rgb_im2 = getFilteredImage(rgb_im1, args.filter)
+    
 imgF = im.new('RGBA', (w * 3, h))
 px = imgF.load()
 
@@ -155,12 +186,21 @@ for i in range(0, c):
                 else:
                     colorDiff = colorDiffPx
                     
-                #print colorDiffPx, colorDiff
-                if colorDiff <= args.percent_diff:
+                diffDir = False
+                if args.invert:
+                    diffDir = colorDiff > args.percent_diff
+                else:
+                    diffDir = colorDiff <= args.percent_diff
+                    
+                if diffDir:
                     counter = counter + 1
-                    x1R, x1G, x1B = im1Px
-                    x2R, x2G, x2B = im2Px
-                    pxColor = ((x1R + x2R) / 2, (x1G + x2G) / 2, (x1B + x2B) / 2)
+                    if args.mix_colors:
+                        x1R, x1G, x1B = im1Px
+                        x2R, x2G, x2B = im2Px
+                        pxColor = ((x1R + x2R) / 2, (x1G + x2G) / 2, (x1B + x2B) / 2)
+                    else:
+                        pxColor = im1Px
+                        
                     px[x+w,y] = setAlpha(pxColor, a)
                 
                     if i == 0:
