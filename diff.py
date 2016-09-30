@@ -12,7 +12,7 @@ parser.add_argument('-O', '--output', default='result.png')
 parser.add_argument('-f', '--filter', default='greyscale')
 parser.add_argument('-p', '--percent-diff', default=1, type=float)
 parser.add_argument('-r', '--radius', default=0, type=int)
-parser.add_argument('-m', '--mix-colors', action='store_true')
+parser.add_argument('-o', '--output-pixel-filter', default='none')
 parser.add_argument('-i', '--invert', action='store_true')
 parser.add_argument('-v', '--verbose', action='store_true')
 args = parser.parse_args()
@@ -40,13 +40,26 @@ def getFilteredImage(input, filter='greyscale'):
             elif filter == 'invert':
                 tuple = filterInvert(r, g, b)
             else:
-                print "Filter %s is not present" % filter
+                print "Image filter %s is not present" % filter
                 exit()
             
             im2P[x,y] = tuple
     
     return img2.convert('RGB')
 
+
+def getOutputPixel((r, g, b), filter='none'):
+    
+    if filter == 'none':
+        px = (r, g, b)
+    elif filter == 'grey':
+        px = (128, 128, 128)
+    else:
+        print "Output pixel filter %s is not present" % filter
+        exit()
+    
+    return px
+    
 
 def filterGreyscale(r, g, b):
     g = int(math.ceil((0.2126 * r) + (0.7152 * g) + (0.0722 * b)))
@@ -194,12 +207,7 @@ for i in range(0, c):
                     
                 if diffDir:
                     counter = counter + 1
-                    if args.mix_colors:
-                        x1R, x1G, x1B = im1Px
-                        x2R, x2G, x2B = im2Px
-                        pxColor = ((x1R + x2R) / 2, (x1G + x2G) / 2, (x1B + x2B) / 2)
-                    else:
-                        pxColor = im1Px
+                    pxColor = getOutputPixel(im1Px, args.output_pixel_filter)
                         
                     px[x+w,y] = setAlpha(pxColor, a)
                 
