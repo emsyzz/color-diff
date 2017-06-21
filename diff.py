@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('input')
 parser.add_argument('-O', '--output', default='result.png')
 parser.add_argument('-f', '--filter', default=['greyscale'], nargs='+')
-parser.add_argument('-a', '--filter_argument', default=None, action='append')
+parser.add_argument('-a', '--filter-argument', default=None, action='append')
 parser.add_argument('-p', '--percent-diff', default=1, type=float)
 parser.add_argument('-r', '--radius', default=0, type=int)
 parser.add_argument('-o', '--output-pixel-filter', default=None)
@@ -268,7 +268,7 @@ for i in range(0, c):
 
 imgF.save(args.output, 'PNG', transparent=0)
 
-color_percent = ((w * h - dI) / ((w * h) * 0.01))
+color_percent = (((w * h) - dI) / ((w * h) * 0.01))
 
 if args.verbose:
     print "Process took %.4f seconds and filled %d of %d pixels" % (time() - startTime, counter, (w * h))
