@@ -2,7 +2,7 @@
 
 import sys
 import random
-import PIL.Image as Im
+from PIL import Image as Im
 import math
 from time import time
 import argparse
@@ -30,7 +30,7 @@ w, h = img1.size[:2]
 
 
 def print_output(i_str, i_args=()):
-    print i_str % i_args
+    print(i_str % i_args)
     sys.stdout.flush()
 
 
@@ -56,7 +56,7 @@ def get_filtered_image(i_input, i_filter='greyscale', i_arg=None):
             elif i_filter == 'blur':
                 v_tuple = filter_blur(loop_x, loop_y, i_input, i_arg)
             else:
-                print "Image filter %s is not present" % i_filter
+                print_output("Image filter %s is not present", (i_filter,))
                 exit(1)
 
             im2p[loop_x, loop_y] = v_tuple
@@ -64,14 +64,16 @@ def get_filtered_image(i_input, i_filter='greyscale', i_arg=None):
     return img2.convert('RGB')
 
 
-def get_output_pixel((r, g, b), i_filter=None):
+def get_output_pixel(r_g_b, i_filter=None):
+    
+    (r, g, b) = r_g_b
     
     if i_filter is None:
         return r, g, b
     elif i_filter == 'grey':
         return 128, 128, 128
     else:
-        print "Output pixel filter %s is not available" % i_filter
+        print_output("Output pixel filter %s is not available", (i_filter,))
         exit(2)
     
 
@@ -271,9 +273,9 @@ imgF.save(args.output, 'PNG', transparent=0)
 color_percent = (((w * h) - dI) / ((w * h) * 0.01))
 
 if args.verbose:
-    print "Process took %.4f seconds and filled %d of %d pixels" % (time() - startTime, counter, (w * h))
-    print "Image is %.2f%% colorful, tolerating %.2f%% difference " \
-          "and using %dpx feather brush" % (color_percent, args.percent_diff, radius)
-    print "See %s" % args.output
+    print_output("Process took %.4f seconds and filled %d of %d pixels", (time() - startTime, counter, (w * h)))
+    print_output("Image is %.2f%% colorful, tolerating %.2f%% difference " \
+          "and using %dpx feather brush", (color_percent, args.percent_diff, radius))
+    print_output("See %s", (args.output,))
 
 exit(0)  # process successful
