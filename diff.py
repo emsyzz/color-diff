@@ -17,6 +17,7 @@ parser.add_argument('-r', '--radius', default=0, type=int)
 parser.add_argument('-o', '--output-pixel-filter', default=None)
 parser.add_argument('-i', '--invert', action='store_true')
 parser.add_argument('-v', '--verbose', action='store_true')
+parser.add_argument('-c', '--color-space', default='rgb')
 args = parser.parse_args()
 
 startTime = time()
@@ -27,7 +28,6 @@ img1 = Im.open(args.input)
 rgb_im1 = img1.convert('RGB')
 
 w, h = img1.size[:2]
-
 
 def print_output(i_str, i_args=()):
     print(i_str % i_args)
@@ -123,8 +123,18 @@ def filter_blur(i_x, i_y, i_img, context_var=None):
 
 
 def diff_colors(im1, im2):
-    return diff_colors_rgb(im1, im2)
-    # return diff_colors_hsl(im1, im2)
+    if args.color_space == 'rgb':
+        return diff_colors_rgb(im1, im2)
+    elif args.color_space == 'hsl':    
+        print_output("Color space not implemented")
+        exit(3)
+        # return diff_colors_hsl(im1, im2)
+    elif args.color_space == 'lab':
+        print_output("Color space not implemented")
+        exit(3)
+    else:
+        print_output("Color space \"%s\" is not known", (args.color_space,))
+        exit(4)
     
     
 def diff_colors_hsl(im1, im2):
